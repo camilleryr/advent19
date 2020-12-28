@@ -11,16 +11,22 @@ defmodule Intcode do
     :op_code,
     :paramaters,
     :paramater_modes,
-    :evaluated_params
+    :evaluated_params,
+    :status
   ]
 
   def new(memory, opts \\ []) do
     %__MODULE__{
       memory: :array.from_list(memory),
       pointer_adress: Keyword.get(opts, :pointer_adress, 0),
-      input: Keyword.get(opts, :input),
-      operation_index: 0
+      input: Keyword.get(opts, :input, []) |> List.wrap(),
+      operation_index: 0,
+      status: :new
     }
+  end
+
+  def put_input(intcode, value) do
+    Map.update!(intcode, :input, fn existing -> existing ++ [value] end)
   end
 
   def update_memory(intcode, position, value) do
@@ -41,21 +47,30 @@ defmodule Intcode do
     |> execute_instruction()
   end
 
-  def execute_instruction(%{op_code: 1, evaluated_params: [x, y | _], paramaters: [_x, _y, dest]} = intcode) do
+  def execute_instruction(
+        %{op_code: 1, evaluated_params: [x, y | _], paramaters: [_x, _y, dest]} = intcode
+      ) do
     intcode
     |> update_memory(dest, x + y)
     |> next()
   end
 
-  def execute_instruction(%{op_code: 2, evaluated_params: [x, y | _], paramaters: [_x, _y, dest]} = intcode) do
+  def execute_instruction(
+        %{op_code: 2, evaluated_params: [x, y | _], paramaters: [_x, _y, dest]} = intcode
+      ) do
     intcode
     |> update_memory(dest, x * y)
     |> next()
   end
 
-  def execute_instruction(%{op_code: 3, paramaters: [dest], input: input} = intcode) do
+  def execute_instruction(%{op_code: 3,  input: []} = intcode) do
+    %{intcode | status: :awaiting_input}
+  end
+
+  def execute_instruction(%{op_code: 3, paramaters: [dest], input: [input | tail]} = intcode) do
     intcode
     |> update_memory(dest, input)
+    |> Map.put(:input, tail)
     |> next()
   end
 
@@ -76,22 +91,28 @@ defmodule Intcode do
     next(intcode, pointer_adress: if(x == 0, do: pointer))
   end
 
-  def execute_instruction(%{op_code: 7, evaluated_params: [x, y, _], paramaters: [_x, _y, dest]} = intcode) do
+  def execute_instruction(
+        %{op_code: 7, evaluated_params: [x, y, _], paramaters: [_x, _y, dest]} = intcode
+      ) do
     intcode
     |> update_memory(dest, if(x < y, do: 1, else: 0))
     |> next()
   end
 
-  def execute_instruction(%{op_code: 8, evaluated_params: [x, y, _], paramaters: [_x, _y, dest]} = intcode) do
+  def execute_instruction(
+        %{op_code: 8, evaluated_params: [x, y, _], paramaters: [_x, _y, dest]} = intcode
+      ) do
     intcode
     |> update_memory(dest, if(x == y, do: 1, else: 0))
     |> next()
   end
 
-  def execute_instruction(%{op_code: 99} = intcode), do: intcode
+  def execute_instruction(%{op_code: 99} = intcode), do: %{intcode | status: :halted}
 
   def next(intcode, opts \\ []) do
-    next_ponter_adress = Keyword.get(opts, :pointer_adress) || intcode.pointer_adress + (length(intcode.paramaters) + 1)
+    next_ponter_adress =
+      Keyword.get(opts, :pointer_adress) ||
+        intcode.pointer_adress + (length(intcode.paramaters) + 1)
 
     run_program(%{
       intcode
@@ -100,7 +121,8 @@ defmodule Intcode do
         op_code: nil,
         paramaters: nil,
         paramater_modes: nil,
-        evaluated_params: nil
+      evaluated_params: nil,
+      status: :executing
     })
   end
 
