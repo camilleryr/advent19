@@ -1,4 +1,4 @@
-defmodule Day5 do
+defmodule Day9 do
   def solve_part_1(file_name) do
     file_name
     |> Intcode.parse()
@@ -10,7 +10,7 @@ defmodule Day5 do
   def solve_part_2(file_name) do
     file_name
     |> Intcode.parse()
-    |> Intcode.new(input: 5)
+    |> Intcode.new(input: 2)
     |> Intcode.run_program()
     |> Intcode.get_output()
   end

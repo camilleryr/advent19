@@ -9,5 +9,7 @@ defmodule Advent19Test do
     assert Advent19.solve(5, 2) == 9386583
     assert Advent19.solve(7, 1) == 262086
     assert Advent19.solve(7, 2) == 5371621
+    assert Advent19.solve(9, 1) == 3409270027
+    assert Advent19.solve(9, 2) == 82760
   end
 end
