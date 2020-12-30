@@ -23,12 +23,15 @@ defmodule Intcode do
       input: Keyword.get(opts, :input, []) |> List.wrap(),
       operation_index: 0,
       status: :new,
-      relative_base: 0
+      relative_base: 0,
+      output: []
     }
   end
 
   def put_input(intcode, value) do
-    Map.update!(intcode, :input, fn existing -> existing ++ [value] end)
+    intcode
+    |> Map.update!(:input, fn existing -> existing ++ [value] end)
+    |> Map.put(:status, :ready_to_run)
   end
 
   def update_memory(intcode, position, value) do
@@ -43,7 +46,9 @@ defmodule Intcode do
     read(intcode.memory, position)
   end
 
-  def get_output(intcode), do: intcode.output
+  def get_output(intcode, n \\ 1)
+  def get_output(%{output: output}, 1), do: List.first(output)
+  def get_output(%{output: output}, n), do: Enum.take(output, n)
 
   def run_program(%__MODULE__{} = intcode) do
     intcode
@@ -81,7 +86,7 @@ defmodule Intcode do
     # IO.inspect(intcode.operation_index, label: :index)
 
     intcode
-    |> Map.put(:output, value)
+    |> Map.update!(:output, &[value | &1])
     |> next()
   end
 

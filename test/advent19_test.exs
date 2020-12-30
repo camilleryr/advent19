@@ -11,5 +11,7 @@ defmodule Advent19Test do
     assert Advent19.solve(7, 2) == 5371621
     assert Advent19.solve(9, 1) == 3409270027
     assert Advent19.solve(9, 2) == 82760
+    assert Advent19.solve(11, 1) == 1686
+    assert Advent19.solve(11, 2) == :ok
   end
 end
