@@ -48,7 +48,10 @@ defmodule Intcode do
 
   def get_output(intcode, n \\ 1)
   def get_output(%{output: output}, 1), do: List.first(output)
+  def get_output(%{output: output}, :all), do: output
   def get_output(%{output: output}, n), do: Enum.take(output, n)
+
+  def clear_output(intcode), do: Map.put(intcode, :output, [])
 
   def run_program(%__MODULE__{} = intcode) do
     intcode

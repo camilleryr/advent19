@@ -47,7 +47,8 @@ defmodule Day11 do
           end
         end)
         |> Enum.join()
-        |> IO.puts()
+
+        # |> IO.puts()
       end)
 
       :ok
