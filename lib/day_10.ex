@@ -82,7 +82,7 @@ defmodule Day10 do
   end
 
   def find_slope({x1, y1}, {x2, y2}) do
-    x =  x2 - x1
+    x = x2 - x1
     y = y2 - y1
     gcd_ = gcd(y, x)
 
