@@ -47,7 +47,6 @@ defmodule Day15 do
   end
 
   def do_solve_part_2(graph, verticies, step) do
-    IO.inspect(verticies)
     neighbors = verticies |> Enum.flat_map(&get_neighbors(&1, graph)) |> Enum.uniq()
     true = graph |> :digraph.del_vertices(verticies)
 

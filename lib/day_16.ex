@@ -21,7 +21,6 @@ defmodule Day16 do
     input = input |> parse()
     offset = input |> Enum.take(7) |> Enum.join() |> String.to_integer()
     input = input |> Stream.cycle() |> Enum.take(length(input) * 10000) |> Enum.drop(offset)
-    # pattern = gen_pattern(input)
 
     input
     |> phase_2(100)
