@@ -58,9 +58,9 @@ defmodule Day15 do
   end
 
   def get_neighbors(vertex, graph) do
-      graph
-      |> :digraph.in_neighbours(vertex)
-      |> Enum.concat(:digraph.out_neighbours(graph, vertex))
+    graph
+    |> :digraph.in_neighbours(vertex)
+    |> Enum.concat(:digraph.out_neighbours(graph, vertex))
   end
 
   def do_solve_part_1(positions, graph) do
