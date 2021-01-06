@@ -8,23 +8,36 @@ defmodule Day19 do
 
   def solve_part_2(input) do
     int = input |> Intcode.parse() |> Intcode.new()
-    {a_25, b_25} = get_points(int, 25)
-    {a_50, b_50} = get_points(int, 50)
 
-    a_slope = 25 / (a_50 - a_25)
-    b_slope = 25 / (b_50 - b_25)
-
-    {a_slope, b_slope}
+    find_points(int, 1523)
   end
 
-  def get_points(intcode, y_index, x_index \\ 0, a \\ nil) do
+  def find_points(intcode, x_index, history \\ %{}) do
+    a = Task.async( fn -> Map.get_lazy(history, x_index, fn -> get_points(intcode, x_index) end) end)
+    b = Task.async(fn -> get_points(intcode, x_index + 99) end)
+
+    {_a_top, a_bottom} = a = Task.await(a)
+    {b_top, _b_bottom} = b = Task.await(b)
+
+    history = Map.put(history, x_index + 99, b)
+
+    IO.inspect({x_index, a, b})
+
+    if a_bottom - b_top == 99 do
+      x_index * 10000 + b_top
+    else
+      find_points(intcode, x_index + 1, history)
+    end
+  end
+
+  def get_points(intcode, x_index, y_index \\ 0, a \\ nil) do
     intcode
     |> deploy(x_index, y_index)
     |> case do
-      0 when not is_nil(a) -> {a, x_index - 1}
-      0 when is_nil(a) -> get_points(intcode, y_index, x_index + 1, a)
-      1 when is_nil(a) -> get_points(intcode, y_index, x_index + 1, x_index)
-      1 -> get_points(intcode, y_index, x_index + 1, a)
+      0 when not is_nil(a) -> {a, y_index - 1}
+      0 when is_nil(a) -> get_points(intcode, x_index, y_index + 1, a)
+      1 when is_nil(a) -> get_points(intcode, x_index, y_index + 1, y_index)
+      1 -> get_points(intcode, x_index, y_index + 1, a)
     end
   end
 
