@@ -15,4 +15,12 @@ defmodule Advent19 do
   defp file_name(day), do: "input/day_#{day}.txt"
   defp day_module(day), do: String.to_atom("Elixir.Day#{day}")
   defp part_func(part), do: String.to_atom("solve_part_#{part}")
+
+  def get_input(input) do
+    if String.starts_with?(input, "input") do
+      File.read!(input)
+    else
+      input
+    end
+  end
 end
